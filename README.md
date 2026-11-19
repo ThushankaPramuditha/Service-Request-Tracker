@@ -89,8 +89,8 @@ Local/testing only; the seeder refuses other environments. It hashes passwords w
 
 | Email | Password |
 | --- | --- |
-| alex@example.test | DemoPassword!2026 |
-| sam@example.test | DemoPassword!2026 |
+| Kasun@gmail.com | DemoPassword!2026 |
+| Nuwan@gmail.com | DemoPassword!2026 |
 
 Each starts with one owned OPEN request at version 1 and no status history. Browser verification creates additional clearly named requests. These are demo credentials, not production secrets.
 
