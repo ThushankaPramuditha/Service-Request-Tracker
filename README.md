@@ -193,10 +193,21 @@ Keep the existing history intact. Use descriptive messages for subsequent change
 
 ## AI Use & Verification
 
-Draft for candidate review. Tools actually used: OpenAI Codex, its shell/file tools, official-documentation web lookup, Composer/npm, Laravel/PHPUnit/Pint, PostgreSQL tools, and Playwright controlling local Edge. The Sites skill was read for its local-only workflow; no Sites hosting or alternate authentication was used. No sub-agents were used.
+Tools I used:
+
+- **OpenAI Codex:** AI assistance with implementation, testing and documentation, as described below.
+- **pgAdmin:** creating the PostgreSQL database.
+- **DBeaver:** monitoring and inspecting the database tables.
+
+Additional tools used during Codex-assisted implementation and verification included shell/file tools, official-documentation web lookup, Composer/npm, Laravel/PHPUnit/Pint, PostgreSQL command-line tools, and Playwright controlling local Edge. The Sites skill was read for its local-only workflow; no Sites hosting or alternate authentication was used. No sub-agents were used.
 
 Codex read the supplied architecture/schema, scaffolded the apps, implemented migrations/API/UI, wrote tests, ran checks, diagnosed failures, captured screenshots and drafted this documentation. A representative actual instruction was: “Acquire the owned request’s row lock inside the transaction before checking its version.” This was implemented in ChangeRequestStatus and checked using independent contending processes and a real rollback failure.
 
 Observed corrections included a missing PHP driver in the local server child, test cookie handling, database timestamp representation, CSRF origin-shortcut behavior, a dropdown test selector, and a hot reload interrupting browser verification. Exact results and remaining limits belong in the verification record, not inferred from generated code.
 
-**Candidate to confirm:** one technical decision you independently evaluated, why you accepted or changed it, your personal review of the implementation, and your ability to explain/modify it without AI. No personal decision or independent verification has been invented on your behalf.
+**Independent technical decisions (candidate-confirmed):**
+
+1. I chose PostgreSQL because I am familiar with it.
+2. I chose to require CSRF tokens even for same-origin requests. The implementation retains CSRF token validation and disables Laravel's origin-only shortcut, so same-origin status alone does not bypass token validation.
+
+**Candidate review still required:** personally review the implementation and prepare to explain and modify it without AI during the interview. The recorded automated checks do not substitute for that review.
