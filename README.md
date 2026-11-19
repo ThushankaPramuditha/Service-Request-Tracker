@@ -207,7 +207,14 @@ Observed corrections included a missing PHP driver in the local server child, te
 
 **Independent technical decisions (candidate-confirmed):**
 
-1. I chose PostgreSQL because I am familiar with it.
-2. I chose to require CSRF tokens even for same-origin requests. The implementation retains CSRF token validation and disables Laravel's origin-only shortcut, so same-origin status alone does not bypass token validation.
+PostgreSQL: I chose PostgreSQL because I am familiar with it, which helped me focus on building and testing the application.
+
+CSRF protection: I required a valid CSRF token for requests that change data, even when they come from the same origin. This keeps token validation consistent.
+
+Ownership: I made Laravel check ownership by loading requests through the logged-in user’s relationship. Users cannot access someone else’s requests by bypassing the UI. Missing requests and another user’s requests both return 404.
+
+Concurrent updates: I locked the request inside the transaction before checking its version. This makes competing updates wait and prevents an outdated update from overwriting newer data.
+
+Audit consistency: I saved the status change, version increase and history entry in one transaction. If any step fails, everything rolls back.
 
 **Candidate review still required:** personally review the implementation and prepare to explain and modify it without AI during the interview. The recorded automated checks do not substitute for that review.
