@@ -1,0 +1,9 @@
+/.local/
+/backend/.env
+/backend/.env.testing
+/frontend/.env.local
+**/node_modules/
+**/vendor/
+**/.next/
+**/test-results/
+**/playwright-report/
