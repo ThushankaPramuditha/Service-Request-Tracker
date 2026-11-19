@@ -31,14 +31,14 @@ export function RequestDetail({ id }: { id: string }) {
     try { await changeStatus(id, { status, expected_version: row.version, remark }); succeeded = true; setNotice('Status updated and recorded.'); await reload(); }
     catch (e) {
       if (e instanceof ApiError && (e.status === 409 || e.status === 0 || e.status >= 500)) {
-        setNotice(e.code === 'STALE_VERSION' ? 'This request changed in another tab. Latest details are loaded below when available. Review them and choose a new action. Your previous action was not replayed.' : 'Review the latest status and history before choosing another action. Your action has not been retried.');
+        setNotice(e.code === 'STALE_VERSION' ? 'This request changed in another tab. Latest details are loaded below when available. Review them and choose a new action. Your previous action was not replayed.' : `${e.message} Review the latest status and history before choosing another action. Your action has not been retried.`);
         await reload();
       } else { setError(e); }
     } finally { setPending(false); }
     return succeeded;
   }
   return <><Link href="/requests">All requests</Link><div className="toolbar"><h1>Request {row ? '#' + row.id : ''}</h1><button className="secondary" disabled={pending} onClick={() => void reload()}>Refresh details</button></div>
-    {notice && <p className="notice" role="status">{notice}</p>}<ErrorNotice error={error} />
+    {notice && <p className="notice" role="status">{notice}</p>}<ErrorNotice error={error} showFields />
     {!row && !error && <p role="status">Loading request…</p>}
     {row && <><section className="panel"><h2 className="text">{row.title}</h2><p><span className="badge">{statusLabel(row.status)}</span>{statusLabel(row.priority)} priority</p><p className="text">{row.description}</p><div className="metadata"><strong>Version {row.version}</strong><span>Created {new Date(row.created_at).toLocaleString()}</span><span>Updated {new Date(row.updated_at).toLocaleString()}</span></div></section>
       {!fresh && <p role="status">Status actions are disabled until current details and history have loaded.</p>}

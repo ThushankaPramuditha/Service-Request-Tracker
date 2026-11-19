@@ -73,6 +73,15 @@ Final timed-expiry rerun: `./scripts/verify-expiry.ps1` against the completed pr
 
 ## Submission state and limits
 
-Configured remote: https://github.com/ThushankaPramuditha/Service-Request-Tracker.git. Branch main; existing initial HEAD 823d5133854ffe612f2afbbfe30a0c530d096ecf. No implementation commit, push or deployment was performed. Candidate review and final submission SHA remain pending.
+Configured remote: https://github.com/ThushankaPramuditha/Service-Request-Tracker.git. Branch main. The original build session ended without a commit; a later repository inspection confirmed the implementation baseline at b62e186e433509d3e1b6fd403fdb1ed0eaea0e12. Use `git rev-parse HEAD` after including subsequent fixes to obtain the exact submission revision. No deployment was performed. Candidate independent review and the personal technical decision remain pending.
 
 Only local HTTP and Edge were browser-tested. HTTPS Secure enforcement is implemented/configured, not proven by an HTTPS browser run. No Firefox/Safari, hosting, production operations or tamper-proof audit claims. The local PHP server is single-process; concurrency evidence comes from separate PHP processes/DB connections. Candidate personal decisions and independent review are not inferred from agent work.
+
+## Assignment gap fixes — 2026-11-19
+
+- Set the CSRF reinitialization control to `type="button"`, preventing unintended form submission. A real Edge/Laravel test removed the XSRF cookie, observed 419, reinitialized it and confirmed zero created records and only one POST attempt until the user explicitly submitted again; then exactly one record existed.
+- Status errors now include server field messages and preserve the invalid-transition explanation while refreshing without replay. A browser test supplied invalid payloads to the real API and verified the displayed validation/transition errors, version 1 and empty history after both rejections.
+- Corrected the Windows startup command to `npm.cmd run dev -- --hostname localhost` and updated submission documentation to the actual committed baseline. Existing history was preserved.
+- The CSRF regression passed in the initial two-test run (25.7 seconds). The status regression initially failed because broad alert/status locators matched Next.js's announcer and the refresh indicator; narrowed the locators. `npx.cmd playwright test tests/workflow.spec.ts --grep 'status failures'` then passed (1 test, 43.4 seconds). These were new focused checks against the already-running local application, not a rerun of the entire prior browser suite.
+- `npm.cmd run lint`, `npm.cmd run typecheck` and `npm.cmd run build` passed. Direct ESLint checks of the changed files and `tsc --noEmit` also passed. Backend code was unchanged; the backend suite was not rerun for these UI/documentation fixes.
+- The candidate's mandatory independent technical decision remains unconfirmed. No personal reasoning was fabricated. No history rewrite, push or deployment was performed.

@@ -14,6 +14,54 @@ async function call(page: Page, path: string, method = 'GET', data?: object) {
     return { status: res.status, body: await res.json() };
   }, { path, method, data });
 }
+
+test('CSRF recovery never submits the create form without a new user decision', async ({ page, context }) => {
+  await login(page, 'alex@example.test');
+  await page.goto('/requests/new');
+  const title = 'CSRF recovery ' + Date.now();
+  await page.getByLabel('Title', { exact: true }).fill(title);
+  await page.getByLabel('Description', { exact: true }).fill('A request created only after an explicit second submission.');
+  await context.clearCookies({ name: 'XSRF-TOKEN' });
+  let submissions = 0;
+  page.on('request', request => {
+    if (request.method() === 'POST' && request.url() === 'http://localhost:8000/api/requests') submissions++;
+  });
+  const rejected = page.waitForResponse(response => response.url() === 'http://localhost:8000/api/requests' && response.request().method() === 'POST');
+  await page.getByRole('button', { name: 'Create request', exact: true }).click();
+  expect((await rejected).status()).toBe(419);
+  await page.getByRole('button', { name: 'Reinitialize security token' }).click();
+  await expect(page.getByText('Security token refreshed. Review the form before submitting again.')).toBeVisible();
+  expect(submissions).toBe(1);
+  expect((await call(page, '/requests?search=' + encodeURIComponent(title))).body.meta.total).toBe(0);
+  await expect(page.getByLabel('Title', { exact: true })).toHaveValue(title);
+  await page.getByRole('button', { name: 'Create request', exact: true }).click();
+  await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
+  expect(submissions).toBe(2);
+  expect((await call(page, '/requests?search=' + encodeURIComponent(title))).body.meta.total).toBe(1);
+});
+
+test('status failures display field errors and the transition reason without replay', async ({ page }) => {
+  await login(page, 'sam@example.test');
+  const created = await call(page, '/requests', 'POST', { title: 'Status errors ' + Date.now(), description: 'Verify actionable errors without changing the request.', priority: 'LOW' });
+  const id = created.body.data.id;
+  await page.goto('/requests/' + id);
+  let attempts = 0;
+  // Deliberately invalid payloads exercise real Laravel validation and workflow errors.
+  await page.route('**/api/requests/' + id + '/status', route => {
+    attempts++;
+    const body = route.request().postDataJSON();
+    return route.continue({ postData: JSON.stringify(attempts === 1 ? { ...body, remark: 'x'.repeat(501) } : { ...body, status: 'RESOLVED' }) });
+  });
+  await page.getByRole('button', { name: 'Mark in progress' }).click();
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('remark:');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('500');
+  await page.getByRole('button', { name: 'Mark in progress' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'This status change is not allowed.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Mark in progress' })).toBeEnabled();
+  expect(attempts).toBe(2);
+  expect((await call(page, '/requests/' + id)).body.data.version).toBe(1);
+  expect((await call(page, '/requests/' + id + '/history')).body.data).toHaveLength(0);
+});
 test('owned workflow, literal XSS text, two-tab stale recovery and both users', async ({ page, context, browser }) => {
   const title = 'Browser check ' + Date.now();
   let dialogs = 0; page.on('dialog', async dialog => { dialogs++; await dialog.dismiss(); });

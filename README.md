@@ -34,7 +34,7 @@ In a second terminal from the repository root:
 cd frontend
 npm ci
 Copy-Item .env.example .env.local
-npm run dev -- --hostname localhost
+npm.cmd run dev -- --hostname localhost
 ```
 
 Open **http://localhost:3000**. Use `localhost` for both apps; do not mix it with `127.0.0.1`. The frontend's only public environment variable is `NEXT_PUBLIC_API_URL=http://localhost:8000`.
@@ -187,7 +187,9 @@ The local PHP server is single-process; browser requests may be slower on Window
 
 Configured repository remote: https://github.com/ThushankaPramuditha/Service-Request-Tracker.git
 
-Branch: `main`. Initial existing HEAD: `823d5133854ffe612f2afbbfe30a0c530d096ecf` (`Initial commit`). This is **not** an implementation commit. Work remains in the local working tree; no commit, push or deployment is claimed. After reviewing and committing, record the actual submission SHA using `git rev-parse HEAD` and verify the pushed repository content.
+Branch: `main`. The implementation baseline is committed at `b62e186e433509d3e1b6fd403fdb1ed0eaea0e12` (`initial commit`). This baseline predates the gap fixes. Obtain the exact current submission SHA with `git rev-parse HEAD`, confirm `git status --short` has no intended changes left out, and verify the pushed repository content. No deployment has been performed.
+
+Keep the existing history intact. Use descriptive messages for subsequent changes, such as `Fix CSRF recovery and clarify status errors`, rather than inventing earlier development steps.
 
 ## AI Use & Verification
 
