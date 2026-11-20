@@ -15,6 +15,10 @@ class StoreServiceRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['title' => ['required', 'string', 'min:3', 'max:100'], 'description' => ['required', 'string', 'min:10', 'max:500'], 'priority' => ['required', Rule::enum(RequestPriority::class)]];
+        return [
+            'title' => ['required', 'string', 'min:3', 'max:100'],
+            'description' => ['required', 'string', 'min:10', 'max:500'],
+            'priority' => ['required', Rule::enum(RequestPriority::class)],
+        ];
     }
 }

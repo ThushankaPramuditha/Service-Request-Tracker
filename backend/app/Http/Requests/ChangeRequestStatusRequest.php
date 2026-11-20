@@ -15,6 +15,10 @@ class ChangeRequestStatusRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['status' => ['required', Rule::enum(RequestStatus::class)], 'expected_version' => ['required', 'integer', 'min:1'], 'remark' => ['nullable', 'string', 'max:500']];
+        return [
+            'status' => ['required', Rule::enum(RequestStatus::class)],
+            'expected_version' => ['required', 'integer', 'min:1'],
+            'remark' => ['nullable', 'string', 'max:500'],
+        ];
     }
 }

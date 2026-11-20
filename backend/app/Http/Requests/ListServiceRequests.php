@@ -16,6 +16,12 @@ class ListServiceRequests extends FormRequest
 
     public function rules(): array
     {
-        return ['search' => ['nullable', 'string', 'max:100'], 'status' => ['nullable', Rule::enum(RequestStatus::class)], 'priority' => ['nullable', Rule::enum(RequestPriority::class)], 'page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'between:1,25']];
+        return [
+            'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::enum(RequestStatus::class)],
+            'priority' => ['nullable', Rule::enum(RequestPriority::class)],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'between:1,25'],
+        ];
     }
 }

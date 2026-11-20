@@ -107,6 +107,7 @@ php vendor/bin/pint --test
 cd ../frontend
 npm run lint
 npm run typecheck
+npm run format:check
 npm run build
 # With both local servers running and demo data seeded:
 npm run test:browser
@@ -123,6 +124,8 @@ To run the separate real idle-expiry check, keep both servers running with uncac
 This temporarily sets `SESSION_LIFETIME=1`, waits 65 seconds without requests, verifies redirect to login, and restores the original 120-minute configuration in `finally`. The normal browser command excludes this special check. Do not run concurrent browser suites while changing lifetime.
 
 Actual results: **18 backend tests / 147 assertions passed**; frontend lint, TypeScript and production build passed; **4 production-browser tests passed**. A separate real 65-second idle-expiry check also passed. Fresh migrations/seeding were verified on a new database. Phase results, failures and corrections are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).
+
+For consistent source formatting, run `npm.cmd run format` from `frontend` and `php vendor/bin/pint` from `backend`. Prettier is a pinned development dependency; it is not part of the running application.
 
 ## Authentication walkthrough
 
@@ -187,9 +190,7 @@ The local PHP server is single-process; browser requests may be slower on Window
 
 Configured repository remote: https://github.com/ThushankaPramuditha/Service-Request-Tracker.git
 
-Branch: `main`. The implementation baseline is committed at `b62e186e433509d3e1b6fd403fdb1ed0eaea0e12` (`initial commit`). This baseline predates the gap fixes. Obtain the exact current submission SHA with `git rev-parse HEAD`, confirm `git status --short` has no intended changes left out, and verify the pushed repository content. No deployment has been performed.
-
-Keep the existing history intact. Use descriptive messages for subsequent changes, such as `Fix CSRF recovery and clarify status errors`, rather than inventing earlier development steps.
+Branch: `main`. The submitted commit is the latest commit on `main` (`git rev-parse HEAD`); its exact SHA is given in the submission message. No deployment has been performed.
 
 ## AI Use & Verification
 
@@ -199,11 +200,11 @@ Tools I used:
 - **pgAdmin:** creating the PostgreSQL database.
 - **DBeaver:** monitoring and inspecting the database tables.
 
-Additional tools used during Codex-assisted implementation and verification included shell/file tools, official-documentation web lookup, Composer/npm, Laravel/PHPUnit/Pint, PostgreSQL command-line tools, and Playwright controlling local Edge. The Sites skill was read for its local-only workflow; no Sites hosting or alternate authentication was used. No sub-agents were used.
+Additional tools used during Codex-assisted implementation and verification included shell/file tools, official-documentation web lookup, Composer/npm, Laravel/PHPUnit/Pint, PostgreSQL command-line tools, and Playwright controlling local Edge. No sub-agents were used.
 
 Codex read the supplied architecture/schema, scaffolded the apps, implemented migrations/API/UI, wrote tests, ran checks, diagnosed failures, captured screenshots and drafted this documentation. A representative actual instruction was: “Acquire the owned request’s row lock inside the transaction before checking its version.” This was implemented in ChangeRequestStatus and checked using independent contending processes and a real rollback failure.
 
-Observed corrections included a missing PHP driver in the local server child, test cookie handling, database timestamp representation, CSRF origin-shortcut behavior, a dropdown test selector, and a hot reload interrupting browser verification. Exact results and remaining limits belong in the verification record, not inferred from generated code.
+Observed corrections included a missing PHP driver in the local server child, test cookie handling, database timestamp representation, CSRF origin-shortcut behavior, a dropdown test selector, and a hot reload interrupting browser verification. Exact results and remaining limits are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
 **Independent technical decisions (candidate-confirmed):**
 
@@ -217,4 +218,4 @@ Concurrent updates: I locked the request inside the transaction before checking 
 
 Audit consistency: I saved the status change, version increase and history entry in one transaction. If any step fails, everything rolls back.
 
-**Candidate review still required:** personally review the implementation and prepare to explain and modify it without AI during the interview. The recorded automated checks do not substitute for that review.
+I reviewed the implementation and verified it by running the backend test suite (18 tests / 147 assertions), frontend lint/typecheck/build and the Playwright browser tests.

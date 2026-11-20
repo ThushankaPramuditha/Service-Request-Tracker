@@ -14,6 +14,7 @@ class ServiceRequestController extends Controller
     {
         $data = $request->validated();
         $query = $request->user()->serviceRequests();
+
         if (($data['search'] ?? '') !== '') {
             $literal = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $data['search']);
             $query->where('title', 'ilike', '%'.$literal.'%');
@@ -24,19 +25,29 @@ class ServiceRequestController extends Controller
             }
         }
 
-        return ServiceRequestResource::collection($query->orderByDesc('created_at')->orderByDesc('id')
-            ->paginate($data['per_page'] ?? 10)->withQueryString());
+        $requests = $query->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate($data['per_page'] ?? 10)
+            ->withQueryString();
+
+        return ServiceRequestResource::collection($requests);
     }
 
     public function store(StoreServiceRequest $request)
     {
-        return (new ServiceRequestResource($request->user()->serviceRequests()->create([
-            ...$request->validated(), 'status' => 'OPEN', 'version' => 1,
-        ])))->response()->setStatusCode(201);
+        $serviceRequest = $request->user()->serviceRequests()->create([
+            ...$request->validated(),
+            'status' => 'OPEN',
+            'version' => 1,
+        ]);
+
+        return (new ServiceRequestResource($serviceRequest))->response()->setStatusCode(201);
     }
 
     public function show(Request $request, string $id)
     {
-        return new ServiceRequestResource($request->user()->serviceRequests()->whereKey($id)->firstOrFail());
+        $serviceRequest = $request->user()->serviceRequests()->whereKey($id)->firstOrFail();
+
+        return new ServiceRequestResource($serviceRequest);
     }
 }

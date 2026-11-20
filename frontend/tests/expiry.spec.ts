@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 test('idle expiry returns to login after a real one-minute session timeout', async ({ page }) => {
-  test.skip(process.env.VERIFY_SHORT_EXPIRY !== '1', 'Run only with backend SESSION_LIFETIME=1; restore 120 afterward.');
+  test.skip(
+    process.env.VERIFY_SHORT_EXPIRY !== '1',
+    'Run only with backend SESSION_LIFETIME=1; restore 120 afterward.',
+  );
   test.setTimeout(100000);
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill('sam@example.test');
