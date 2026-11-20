@@ -89,8 +89,8 @@ Local/testing only; the seeder refuses other environments. It hashes passwords w
 
 | Email | Password |
 | --- | --- |
-| Kasun@gmail.com | DemoPassword!2026 |
-| Nuwan@gmail.com | DemoPassword!2026 |
+| alex@example.test | DemoPassword!2026 |
+| sam@example.test | DemoPassword!2026 |
 
 Each starts with one owned OPEN request at version 1 and no status history. Browser verification creates additional clearly named requests. These are demo credentials, not production secrets.
 
@@ -123,11 +123,13 @@ To run the separate real idle-expiry check, keep both servers running with uncac
 
 This temporarily sets `SESSION_LIFETIME=1`, waits 65 seconds without requests, verifies redirect to login, and restores the original 120-minute configuration in `finally`. The normal browser command excludes this special check. Do not run concurrent browser suites while changing lifetime.
 
-Actual results: **18 backend tests / 147 assertions passed**; frontend lint, TypeScript and production build passed; **4 production-browser tests passed**. A separate real 65-second idle-expiry check also passed. Fresh migrations/seeding were verified on a new database. Phase results, failures and corrections are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).
+Actual results: **18 backend tests / 147 assertions passed**; frontend lint, TypeScript and production build passed; **6 production-browser tests passed** (see [docs/TEST-RESULTS.md](docs/TEST-RESULTS.md)). A separate real 65-second idle-expiry check also passed. Fresh migrations/seeding were verified on a new database. Phase results, failures and corrections are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
 For consistent source formatting, run `npm.cmd run format` from `frontend` and `php vendor/bin/pint` from `backend`. Prettier is a pinned development dependency; it is not part of the running application.
 
 ## Authentication walkthrough
+
+**Why Sanctum SPA cookie authentication:** the Next.js frontend and Laravel API are first-party applications on the same site (`localhost`), which is the case Sanctum's SPA mode is designed for. The session ID lives in an HttpOnly cookie, so JavaScript never sees a credential and nothing is kept in `localStorage`, reducing the impact of XSS. Logout and expiry are enforced server-side by invalidating the database session, so there is no JWT-style problem of a still-valid token after logout. The trade-off, cookie-based CSRF risk, is handled by Laravel's CSRF token, SameSite=Lax and exact-origin credentialed CORS.
 
 1. The browser calls Laravel's `/sanctum/csrf-cookie` with credentials. Laravel sets an HttpOnly session cookie and a separate readable `XSRF-TOKEN` cookie.
 2. The fetch client URL-decodes only `XSRF-TOKEN` and sends `X-XSRF-TOKEN` on mutations. The session identifier is never read by JavaScript. Laravel 13's optional origin-only shortcut is overridden so a token is still required.
